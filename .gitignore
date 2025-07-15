@@ -34,6 +34,9 @@ data/
 # Generated charts (will be created automatically)
 charts/
 
+# Course materials (should not be public)
+materials/
+
 # IDE
 .vscode/
 .idea/
