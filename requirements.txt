@@ -1,0 +1,7 @@
+yfinance
+pandas
+mplchart
+scipy
+matplotlib
+lxml
+html5lib 

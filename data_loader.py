@@ -1,24 +1,37 @@
 import yfinance as yf
 import pandas as pd
 import os
+import ssl
+import urllib.request
 
-def download_data():
+def download_data(specific_ticker=None):
     # Create data directory if not exists
     os.makedirs('data', exist_ok=True)
     
-    # Get S&P500 tickers
-    sp500_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-    sp500 = pd.read_html(sp500_url)[0]['Symbol'].tolist()
+    # Default base assets for demonstration
+    base_tickers = ['BTC-USD', 'AAPL']  # Bitcoin and Apple as defaults
     
-    # Crypto tickers
-    cryptos = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'XRP-USD']
+    # If specific ticker is provided, add it to the list
+    if specific_ticker:
+        tickers_to_download = list(set(base_tickers + [specific_ticker.upper()]))
+        print(f'Загружаем базовые активы ({", ".join(base_tickers)}) + запрошенный тикер ({specific_ticker.upper()})')
+    else:
+        tickers_to_download = base_tickers
+        print(f'Загружаем базовые активы: {", ".join(base_tickers)}')
     
-    # All tickers
-    all_tickers = sp500 + cryptos
+    all_tickers = tickers_to_download
+    
+    # Configure SSL to handle certificate issues
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
     
     for ticker in all_tickers:
         try:
-            data = yf.Ticker(ticker).history(period='max')
+            data = yf.Ticker(ticker).history(period='1y')  # Use 1 year instead of 'max' for faster download
             if not data.empty:
                 data.to_csv(f'data/{ticker}.csv')
                 print(f'Downloaded data for {ticker}')
